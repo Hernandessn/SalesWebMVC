@@ -10,16 +10,23 @@ builder.Services.AddDbContext<SalesWebMvcContext>(options =>
         b => b.MigrationsAssembly("SalesWebMvc")
     ));
 
-// Add services to the container.
+builder.Services.AddScoped<SeedingService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seedingService = scope.ServiceProvider.GetRequiredService<SeedingService>();
+    seedingService.Seed();
 }
 
 app.UseHttpsRedirection();
